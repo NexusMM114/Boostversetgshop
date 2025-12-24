@@ -1,0 +1,77 @@
+/* winter.css - BoostVerseTG Holiday Theme */
+@import url('https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Poppins:wght@300;400;600&display=swap');
+
+:root {
+    --winter-blue: #050a18;
+    --accent-red: #ef4444;
+    --gold: #f59e0b;
+}
+
+body {
+    background-color: var(--winter-blue);
+    color: #f1f5f9;
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    overflow-x: hidden;
+}
+
+.christmas-font { 
+    font-family: 'Mountains of Christmas', cursive; 
+}
+
+.glass-card {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 1.5rem;
+    transition: all 0.3s ease;
+}
+
+.glass-card:hover {
+    border-color: var(--accent-red);
+    box-shadow: 0 0 25px rgba(239, 68, 68, 0.2);
+    transform: translateY(-3px);
+}
+
+.gradient-text {
+    background: linear-gradient(to right, #ff4d4d, #f9cb28, #ff4d4d);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% auto;
+    animation: shine 3s linear infinite;
+}
+
+@keyframes shine { 
+    to { background-position: 200% center; } 
+}
+
+.snowflake {
+    position: fixed;
+    top: -10px;
+    z-index: 1000;
+    color: #fff;
+    user-select: none;
+    pointer-events: none;
+    animation: fall linear forwards;
+}
+
+@keyframes fall {
+    to { transform: translateY(105vh) rotate(360deg); }
+}
+
+.input-style {
+    width: 100%;
+    padding: 0.8rem;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    color: white;
+    outline: none;
+    box-sizing: border-box;
+    transition: all 0.2s;
+}
+
+.input-style:focus {
+    border-color: var(--accent-red);
+    background: rgba(255,255,255,0.08);
+}
