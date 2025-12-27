@@ -1,0 +1,21 @@
+{
+  "name": "Nexus Logo Studio",
+  "short_name": "NexusLogo",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#050a18",
+  "theme_color": "#ef4444",
+  "description": "Premium GFX Studio for Elite Creators",
+  "icons": [
+    {
+      "src": "logo1.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo1.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
