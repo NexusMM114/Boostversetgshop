@@ -3,52 +3,283 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BoostVerseTG Shop - Holiday Edition</title>
-    <!-- Tailwind CSS -->
+    <title>BoostVerseTG | Official Shop</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Link to your separate CSS file -->
-    <link rel="stylesheet" href="winter.css">
+    <link href="https://fonts.googleapis.com/css2?family=Mountains+of+Christmas:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+
+    <style>
+        :root { --winter-blue: #050a18; --accent-red: #ef4444; }
+        body { background-color: var(--winter-blue); color: #f1f5f9; font-family: 'Poppins', sans-serif; overflow-x: hidden; background: radial-gradient(circle at top, #0a1329 0%, #050a18 100%); }
+        .christmas-font { font-family: 'Mountains of Christmas', cursive; }
+        .glass-card { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 1.5rem; transition: 0.3s ease; }
+        .gradient-text { background: linear-gradient(to right, #ff4d4d, #f9cb28, #ff4d4d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-size: 200% auto; animation: shine 3s linear infinite; }
+        @keyframes shine { to { background-position: 200% center; } }
+        .snowflake { position: fixed; top: -10px; z-index: 1000; color: #fff; pointer-events: none; animation: fall linear forwards; }
+        @keyframes fall { to { transform: translateY(105vh) rotate(360deg); } }
+        .input-style { width: 100%; padding: 0.85rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; color: white; outline: none; box-sizing: border-box; }
+        .nav-btn { display: flex; flex-direction: column; align-items: center; cursor: pointer; color: #64748b; }
+        .nav-btn span { font-size: 8px; font-weight: bold; margin-top: 2px; }
+    </style>
 </head>
 <body class="antialiased">
 
-<div class="page-wrapper relative">
+<div id="app-root" class="max-w-[480px] mx-auto min-h-screen flex flex-col p-4 relative">
+    <!-- Header -->
     <header class="py-8 text-center">
-        <h1 class="text-5xl christmas-font gradient-text mb-2 cursor-pointer select-none" onclick="navigate('home')">
-            BoostVerseTG Shop
-        </h1>
-        <p class="text-gray-400 text-[10px] tracking-[0.3em] uppercase italic font-light">Telegram Powered Digital Shop</p>
+        <h1 class="text-5xl christmas-font gradient-text mb-1 cursor-pointer" onclick="navigate('home')">BoostVerseTG</h1>
+        <p class="text-gray-500 text-[9px] tracking-widest uppercase font-bold italic">Digital Agency</p>
     </header>
 
-    <main id="app-content" class="flex-grow pb-24"></main>
+    <!-- Content Area -->
+    <main id="app-content" class="flex-grow pb-28">
+        <div id="loading-screen" class="flex flex-col justify-center items-center h-40 space-y-4">
+            <p class="italic text-gray-500 christmas-font text-2xl animate-pulse">Syncing Cloud Shop...</p>
+        </div>
+    </main>
 
-    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] z-40">
-        <div class="glass-card flex justify-around items-center p-3 shadow-2xl bg-black/60 border-white/20">
-            <button onclick="navigate('home')" class="flex flex-col items-center">
-                <span class="text-xl">🏠</span><span class="text-[9px] font-bold text-gray-400">Home</span>
-            </button>
-            <button onclick="navigate('dashboard')" class="flex flex-col items-center">
-                <span class="text-xl">📊</span><span class="text-[9px] font-bold text-gray-400">Dash</span>
-            </button>
-            <button onclick="navigate('track-order')" class="flex flex-col items-center">
-                <span class="text-xl">📌</span><span class="text-[9px] font-bold text-gray-400">Track</span>
-            </button>
-            <button onclick="navigate('login')" class="flex flex-col items-center">
-                <span class="text-xl">👤</span><span class="text-[9px] font-bold text-gray-400">Account</span>
-            </button>
+    <!-- Tab Bar -->
+    <nav class="fixed bottom-5 left-1/2 -translate-x-1/2 w-[92%] max-w-[420px] z-50">
+        <div class="glass-card flex justify-around items-center p-3 bg-black/80 border-white/10 shadow-2xl">
+            <div onclick="navigate('home')" class="nav-btn"><span class="text-xl">🏠</span><span>HOME</span></div>
+            <div onclick="navigate('dashboard')" class="nav-btn"><span class="text-xl">📊</span><span>DASH</span></div>
+            <div onclick="navigate('track-order')" class="nav-btn"><span class="text-xl">📌</span><span>TRACK</span></div>
+            <div onclick="navigate('login')" class="nav-btn"><span class="text-xl">👤</span><span>ACCOUNT</span></div>
         </div>
     </nav>
 
-    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-all pointer-events-none z-50 transform scale-90"></div>
+    <!-- Toast UI -->
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-2 rounded-full opacity-0 transition-all z-50 transform scale-90"></div>
 </div>
 
-<!-- Scripts must load in this order -->
-<script src="config.js"></script>
-<script src="app.js"></script>
+<script>
+    // --- 1. CONFIG ---
+    const CONFIG = {
+        projectId: "boostversetg",
+        adminPassword: "nexus@mm",
+        upiId: "lavyanshboss@fam",
+        telegramBot: "BoostVerseTG_Bot",
+        formLink: "https://forms.gle/8cfhKqFBmtFYqWRa6"
+    };
+
+    // Firebase Initialization
+    try {
+        firebase.initializeApp({ projectId: CONFIG.projectId });
+    } catch (e) { console.error("Firebase startup error"); }
+    
+    const db = firebase.firestore();
+    const auth = firebase.auth();
+    const appId = CONFIG.projectId;
+
+    // --- 2. SERVICES ---
+    const SERVICES = {
+        'gaming-logo': { name: 'Gaming Logo (Mascot/Text)', price: '₹20', qr: 20 },
+        'sensitivity': { name: 'Sensi Settings (Zero Recoil)', price: '₹20', qr: 20 },
+        'web-bio': { name: 'Bio Link Website', price: '₹149', qr: 149 },
+        'tg-banner': { name: 'Telegram Channel Banner', price: '₹69', qr: 69 },
+        'gaming-montage': { name: 'Gaming Montage Edit', price: '₹149', qr: 149 }
+    };
+
+    let currentUser = JSON.parse(localStorage.getItem('bv_user') || 'null');
+    const appContent = document.getElementById('app-content');
+
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.classList.replace('opacity-0', 'opacity-100');
+        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
+    }
+
+    function navigate(path) { 
+        window.location.hash = path; 
+        render(); 
+    }
+
+    // --- 3. MAIN RENDERER ---
+    async function render() {
+        if (!auth.currentUser) auth.signInAnonymously().catch(() => {});
+        
+        const hash = window.location.hash.slice(1) || 'home';
+        const [page, id] = hash.split('/');
+        appContent.innerHTML = '';
+
+        try {
+            if (page === 'dashboard') await renderDashboard();
+            else if (page === 'service' && id) renderServiceForm(id);
+            else if (page === 'login') renderLogin();
+            else if (page === 'track-order') renderTrack();
+            else if (page === 'admin') renderAdmin();
+            else renderHome();
+        } catch (e) {
+            renderHome();
+        }
+    }
+
+    function renderHome() {
+        let welcome = currentUser ? `
+            <div onclick="navigate('dashboard')" class="glass-card p-4 mb-8 flex items-center justify-between border-l-4 border-red-500 bg-red-500/5 cursor-pointer">
+                <div><p class="text-[9px] text-gray-500 uppercase font-bold">Authenticated User</p><p class="text-sm font-bold">Hi, ${currentUser.name}! ❄️</p></div>
+                <span class="text-red-400 font-bold text-xs underline">DASHBOARD</span>
+            </div>` : '';
+
+        appContent.innerHTML = welcome + `
+            <section class="text-center mb-10 px-4">
+                <h2 class="text-3xl font-bold christmas-font mb-2">Our Digital Services</h2>
+                <p class="text-[11px] text-gray-400 italic">Fast Delivery • Quality Work • Cloud Secured</p>
+            </section>
+            <div class="grid gap-4">
+                ${Object.entries(SERVICES).map(([sid, s]) => `
+                    <div onclick="navigate('service/${sid}')" class="glass-card p-5 flex justify-between items-center cursor-pointer active:scale-95">
+                        <h4 class="font-bold text-white text-sm uppercase">${s.name}</h4>
+                        <span class="text-yellow-500 font-bold text-sm">${s.price}</span>
+                    </div>`).join('')}
+            </div>`;
+    }
+
+    function renderLogin() {
+        if(currentUser) return navigate('dashboard');
+        appContent.innerHTML = `
+            <div id="log-1" class="glass-card p-8 text-center mt-6">
+                <h2 class="text-2xl christmas-font text-indigo-400 mb-6">Telegram Auth</h2>
+                <input type="text" id="tg-u" placeholder="@your_username" class="input-style mb-4 text-center">
+                <button onclick="requestOTP()" class="w-full bg-indigo-600 py-3 rounded-xl font-bold uppercase shadow-xl shadow-indigo-900/40">Request OTP 🚀</button>
+            </div>
+            <div id="log-2" class="glass-card p-8 hidden text-center mt-6">
+                <h2 class="text-2xl christmas-font text-red-400 mb-2">Enter OTP</h2>
+                <p class="text-[10px] text-gray-500 mb-8 italic">Get code from <a href="https://t.me/${CONFIG.telegramBot}" target="_blank" class="text-indigo-400 font-bold underline">@${CONFIG.telegramBot}</a></p>
+                <input type="number" id="otp-in" placeholder="000000" class="input-style text-center text-2xl tracking-[0.4em] mb-6">
+                <button onclick="verifyOTP()" class="w-full bg-red-600 py-3 rounded-xl font-bold uppercase">Login Now</button>
+            </div>`;
+    }
+
+    function requestOTP() {
+        if(!document.getElementById('tg-u').value.startsWith('@')) return alert("Please enter username with @");
+        document.getElementById('log-1').classList.add('hidden');
+        document.getElementById('log-2').classList.remove('hidden');
+        showToast("Now check your bot!");
+    }
+
+    async function verifyOTP() {
+        const u = document.getElementById('tg-u').value.trim().replace('@','').toLowerCase();
+        const code = document.getElementById('otp-in').value;
+        try {
+            const doc = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('otps').doc(u).get();
+            if(doc.exists && doc.data().otp == code) {
+                currentUser = { name: "@" + u };
+                localStorage.setItem('bv_user', JSON.stringify(currentUser));
+                showToast("Logged in!");
+                navigate('dashboard');
+            } else { alert("Invalid OTP!"); }
+        } catch (e) { showToast("Sync Error."); }
+    }
+
+    function renderServiceForm(id) {
+        const s = SERVICES[id];
+        const upi = `upi://pay?pa=${CONFIG.upiId}&am=${s.qr}&tn=${encodeURIComponent(s.name)}`;
+        const qr = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upi)}`;
+        appContent.innerHTML = `
+            <div class="glass-card p-6 text-center">
+                <button onclick="navigate('home')" class="text-[10px] text-red-400 font-bold mb-4 block text-left">← CANCEL</button>
+                <h2 class="text-xl font-bold mb-4 text-white uppercase">${s.name}</h2>
+                <div class="bg-white p-3 rounded-2xl inline-block shadow-2xl mb-4"><img src="${qr}" class="w-32 h-32"></div>
+                <p class="text-[9px] text-gray-500 font-bold mb-6 italic">Pay ₹${s.qr} to continue</p>
+                <form onsubmit="handleOrder(event, '${id}')" class="space-y-4">
+                    <input type="text" id="o-name" value="${currentUser?currentUser.name:''}" placeholder="Your @Username" required class="input-style text-left">
+                    <textarea id="o-req" placeholder="Specific requirements (colors, text)..." required class="input-style text-left" rows="2"></textarea>
+                    <input type="text" id="o-utr" placeholder="UTR Number / Ref ID" required class="input-style text-left">
+                    <button type="submit" class="w-full bg-red-600 py-3 rounded-xl font-bold uppercase shadow-xl shadow-red-900/40">Submit Order 🎁</button>
+                </form>
+            </div>`;
+    }
+
+    async function handleOrder(e, sid) {
+        e.preventDefault();
+        const oid = "BV" + Math.floor(Math.random()*900000);
+        const data = { id: oid, service: SERVICES[sid].name, client: document.getElementById('o-name').value, utr: document.getElementById('o-utr').value, status: 'Pending', date: new Date().toLocaleString() };
+        try {
+            await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('orders').doc(oid).set(data);
+            window.open(CONFIG.formLink, "_blank");
+            navigate('dashboard');
+        } catch (err) { showToast("Sync error."); }
+    }
+
+    async function renderDashboard() {
+        if(!currentUser) return navigate('login');
+        appContent.innerHTML = `<div class="text-center p-20 italic text-gray-500">Connecting to Cloud...</div>`;
+        try {
+            const snap = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('orders').get();
+            const myOrders = snap.docs.map(d=>d.data()).filter(o=>o.client.toLowerCase() === currentUser.name.toLowerCase());
+            appContent.innerHTML = `
+                <div class="space-y-4">
+                    <div class="glass-card p-6 text-center border-b-2 border-indigo-500"><h2 class="text-2xl christmas-font">${currentUser.name}</h2><p class="text-[10px] text-gray-500 uppercase tracking-widest font-bold">Cloud Dashboard</p></div>
+                    ${myOrders.length===0?'<p class="text-center text-gray-500 py-10 uppercase text-[9px]">No orders found.</p>':myOrders.map(o=>`
+                        <div class="glass-card p-4 flex justify-between items-center border-l-2 ${o.status==='Completed'?'border-green-500':'border-yellow-500'}">
+                            <div><p class="text-white text-xs font-bold uppercase">${o.service}</p><p class="text-[9px] text-gray-500">${o.id}</p></div>
+                            <span class="text-[10px] font-bold uppercase text-yellow-400">${o.status}</span>
+                        </div>`).join('')}
+                    <button onclick="localStorage.removeItem('bv_user');location.reload()" class="w-full text-red-500 text-[10px] font-bold uppercase underline mt-4">Sign Out</button>
+                </div>`;
+        } catch (e) { appContent.innerHTML = `<p class="text-center">Database Sync Failed.</p>`; }
+    }
+
+    function renderTrack() {
+        appContent.innerHTML = `
+            <div class="glass-card p-6 text-center mt-6">
+                <h2 class="text-xl font-bold mb-6 text-white uppercase tracking-widest">Track Status</h2>
+                <input type="text" id="tr-id" placeholder="BV123456" class="input-style mb-4 text-center">
+                <button onclick="doTrack()" class="w-full bg-red-600 py-2 rounded-xl font-bold uppercase">Search Cloud</button>
+                <div id="tr-res" class="mt-8"></div>
+            </div>`;
+    }
+
+    async function doTrack() {
+        const id = document.getElementById('tr-id').value.trim().toUpperCase();
+        if(!id) return;
+        const res = document.getElementById('tr-res');
+        res.innerHTML = '<p class="text-center animate-pulse text-[10px]">Syncing...</p>';
+        try {
+            const doc = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('orders').doc(id).get();
+            if(!doc.exists) return res.innerHTML = `<p class="text-red-400 uppercase text-[10px]">Not Found</p>`;
+            res.innerHTML = `<div class="glass-card p-4 border-l-4 border-green-500 uppercase font-bold text-green-400 text-xs">Status: ${doc.data().status}</div>`;
+        } catch (e) { res.innerHTML = `<p class="text-red-400 text-[9px]">Sync Error</p>`; }
+    }
+
+    async function renderAdmin() {
+        const loggedIn = sessionStorage.getItem('isAdmin') === 'true';
+        if (!loggedIn) {
+            appContent.innerHTML = `<div class="glass-card p-8 text-center mt-10"><h2 class="text-xl mb-6">Admin Access</h2><input type="password" id="adm-p" class="input-style mb-4 text-center"><button onclick="if(document.getElementById('adm-p').value===CONFIG.adminPassword){sessionStorage.setItem('isAdmin','true');render();}else alert('Denied');" class="w-full bg-red-600 py-3 rounded-xl font-bold uppercase">Login</button></div>`;
+            return;
+        }
+        const snap = await db.collection('artifacts').doc(appId).collection('public').doc('data').collection('orders').get();
+        appContent.innerHTML = `<div class="space-y-4">
+            <div class="flex justify-between items-center px-1"><h2 class="text-xl font-bold">Orders</h2><button onclick="sessionStorage.removeItem('isAdmin');render();" class="text-red-400 text-[10px] font-bold underline uppercase">Exit</button></div>
+            ${snap.docs.map(d=>d.data()).map(o => `
+                <div class="glass-card p-4 text-[11px] space-y-1">
+                    <p class="font-bold text-white uppercase">${o.id} - ${o.service}</p>
+                    <p class="text-gray-400">${o.client}</p>
+                    <button onclick="db.collection('artifacts').doc(appId).collection('public').doc('data').collection('orders').doc('${o.id}').update({status:'Completed'});render();" class="text-green-400 underline font-bold mt-2 uppercase">Complete Order</button>
+                    <button onclick="if(confirm('Del?')){db.collection('artifacts').doc(appId).collection('public').doc('data').collection('orders').doc('${o.id}').delete();render();}" class="text-red-500 block text-[9px] uppercase mt-2">Delete</button>
+                </div>`).join('')}
+        </div>`;
+    }
+
+    function createSnow() {
+        const s = document.createElement('div'); s.className = 'snowflake'; s.innerHTML = '❄';
+        s.style.left = Math.random() * 100 + 'vw'; s.style.animationDuration = Math.random() * 3 + 2 + 's';
+        document.body.appendChild(s); setTimeout(() => s.remove(), 5000);
+    }
+    setInterval(createSnow, 500);
+
+    // Bootstrap
+    window.onhashchange = render;
+    window.onload = () => {
+        setTimeout(render, 1500); // Small delay to let Firebase settle
+    };
+</script>
 </body>
 </html>
+
 
