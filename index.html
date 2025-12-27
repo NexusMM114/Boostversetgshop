@@ -4,300 +4,59 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BoostVerseTG Shop - Holiday Edition</title>
-    <!-- Tailwind CSS for layout base -->
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Linking your custom Winter CSS file -->
+    <!-- Link to your separate CSS file -->
     <link rel="stylesheet" href="winter.css">
+    
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 </head>
-<body class="font-sans">
+<body class="antialiased">
 
-<div class="max-w-[480px] mx-auto min-h-screen flex flex-col p-4 relative">
+<div class="page-wrapper relative">
     <!-- Header -->
-    <header class="py-10 text-center">
-        <h1 class="text-5xl christmas-font gradient-text mb-2">
+    <header class="py-8 text-center">
+        <h1 class="text-5xl christmas-font gradient-text mb-2 cursor-pointer select-none" onclick="navigate('home')">
             BoostVerseTG Shop
         </h1>
-        <p class="text-gray-400 text-sm italic">Premium Digital & Design Services</p>
+        <p class="text-gray-400 text-[10px] tracking-[0.3em] uppercase italic font-light">Telegram Powered Digital Shop</p>
     </header>
 
-    <!-- Main Content Area -->
-    <main id="app-content" class="flex-grow"></main>
+    <!-- App Dynamic Content -->
+    <main id="app-content" class="flex-grow pb-24"></main>
 
-    <!-- Navigation Footer -->
-    <footer class="mt-12 space-y-4 pb-10">
-        <button onclick="navigate('home')" class="w-full py-4 glass-card text-white font-bold hover:bg-red-600/20 transition-all">
-            🎄 Back to Home
-        </button>
-        <div class="grid grid-cols-2 gap-3">
-            <button onclick="navigate('admin')" class="py-3 glass-card text-xs text-gray-300">🔐 Admin Panel</button>
-            <button onclick="navigate('track-order')" class="py-3 glass-card text-xs text-green-400 font-bold">📌 Track Order</button>
+    <!-- Global Navigation Footer -->
+    <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] z-40">
+        <div class="glass-card flex justify-around items-center p-3 shadow-2xl bg-black/60 border-white/20">
+            <button onclick="navigate('home')" class="flex flex-col items-center group">
+                <span class="text-xl mb-0.5">🏠</span>
+                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Home</span>
+            </button>
+            <button onclick="navigate('dashboard')" class="flex flex-col items-center group">
+                <span class="text-xl mb-0.5">📊</span>
+                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Dash</span>
+            </button>
+            <button onclick="navigate('track-order')" class="flex flex-col items-center group">
+                <span class="text-xl mb-0.5">📌</span>
+                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Track</span>
+            </button>
+            <button onclick="navigate('login')" class="flex flex-col items-center group">
+                <span class="text-xl mb-0.5">👤</span>
+                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Account</span>
+            </button>
         </div>
-    </footer>
+    </nav>
 
     <!-- Toast Notification -->
-    <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-all pointer-events-none z-50"></div>
+    <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-all pointer-events-none z-50 transform scale-90"></div>
 </div>
 
-<script>
-    // --- Config ---
-    const UPI_ID = "lavyanshboss@fam";
-    const ADMIN_USERNAME = "nexusmm";
-    const ADMIN_PASSWORD = "nexus@mm";
-    
-    // Load existing orders from device memory
-    let ORDERS = JSON.parse(localStorage.getItem('boostverse_orders') || '[]');
-
-    const CATEGORIES = {
-        'A': { title: '🌐 Digital Products', description: 'Websites, Bio Links & Templates' },
-        'B': { title: '🎨 Design Services', description: 'Logos, Thumbnails & Banners' },
-        'C': { title: '🎮 Gaming Services', description: 'Sensi, Keybinds & Video Edits' },
-        'D': { title: '⚡ Custom Services', description: 'Bespoke Branding & Bulk Orders' }
-    };
-
-    const SERVICES = {
-        // Category A: Digital Products
-        'web-bio-link': { cat: 'A', name: 'Webpage / Bio Link Website', price: '₹149 – ₹399' },
-        'full-template': { cat: 'A', name: 'Full Website Template', price: '₹299 – ₹799' },
-        'portfolio-business': { cat: 'A', name: 'Portfolio / Business Page', price: '₹199 – ₹499' },
-        'custom-landing': { cat: 'A', name: 'Custom Landing Page', price: '₹399 – ₹999' },
-
-        // Category B: Design Services
-        'gaming-logo': { cat: 'B', name: 'Gaming Logo', price: '₹99 – ₹249' },
-        'professional-logo': { cat: 'B', name: 'Professional Logo', price: '₹149 – ₹399' },
-        'youtube-thumbnail': { cat: 'B', name: 'YouTube Thumbnail', price: '₹49 – ₹99' },
-        'instagram-banner': { cat: 'B', name: 'Instagram Banner', price: '₹79 – ₹149' },
-        'telegram-banner': { 
-            cat: 'B', 
-            name: 'Telegram Channel Banner', 
-            price: '₹69 – ₹149',
-            variants: [
-                '1. Modern Telegram Banner',
-                '2. Gaming Style Banner',
-                '3. Business/Professional Banner',
-                '4. Futuristic / Sci-Fi Banner',
-                '5. Minimal Aesthetic Banner',
-                '6. Digital Shop Banner'
-            ]
-        },
-
-        // Category C: Gaming-Related
-        'sensitivity-setup': { cat: 'C', name: 'Sensitivity Settings Setup', price: '₹49 – ₹99' },
-        'keybind-layout': { cat: 'C', name: 'Keybind Layout Design', price: '₹59 – ₹129' },
-        'game-thumbnail': { cat: 'C', name: 'Game Thumbnail / Cover', price: '₹49 – ₹149' },
-        'gaming-montage': { cat: 'C', name: 'Gaming Montage Edit', price: '₹149 – ₹499' },
-
-        // Category D: Custom Services
-        'custom-all': { cat: 'D', name: 'Custom Service (Website/Branding/Bulk)', price: '₹199 – ₹1999' }
-    };
-
-    const appContent = document.getElementById('app-content');
-
-    // --- Core Functions ---
-    function showToast(msg) {
-        const t = document.getElementById('toast');
-        t.textContent = msg;
-        t.classList.replace('opacity-0', 'opacity-100');
-        setTimeout(() => t.classList.replace('opacity-100', 'opacity-0'), 3000);
-    }
-
-    function navigate(path) {
-        window.location.hash = path;
-        render();
-    }
-
-    function render() {
-        const hash = window.location.hash.slice(1);
-        const [page, id] = hash.split('/');
-        appContent.innerHTML = '';
-
-        if (page === 'category' && id) { renderCategory(id); }
-        else if (page === 'service' && id) { renderServiceForm(id); }
-        else if (page === 'track-order') { renderTrack(); }
-        else if (page === 'admin') { renderAdmin(); }
-        else { renderHome(); }
-    }
-
-    function renderHome() {
-        let html = `<div class="space-y-4">`;
-        Object.entries(CATEGORIES).forEach(([id, cat]) => {
-            html += `
-                <div onclick="navigate('category/${id}')" class="glass-card p-6 cursor-pointer">
-                    <h3 class="text-xl font-bold text-white mb-1 christmas-font">${cat.title}</h3>
-                    <p class="text-xs text-gray-400">${cat.description}</p>
-                </div>`;
-        });
-        appContent.innerHTML = html + `</div>`;
-    }
-
-    function renderCategory(id) {
-        let html = `<h2 class="text-2xl christmas-font text-red-400 mb-6">${CATEGORIES[id].title}</h2><div class="space-y-3">`;
-        Object.entries(SERVICES).filter(([_, s]) => s.cat === id).forEach(([sid, s]) => {
-            html += `
-                <div onclick="navigate('service/${sid}')" class="glass-card p-4 flex justify-between items-center cursor-pointer border-l-4 border-red-500">
-                    <span class="text-white text-sm font-medium">${s.name}</span>
-                    <span class="text-yellow-500 font-bold text-xs">${s.price}</span>
-                </div>`;
-        });
-        appContent.innerHTML = html + `</div>`;
-    }
-
-    function renderServiceForm(id) {
-        const s = SERVICES[id];
-        let variantHtml = '';
-        if (s.variants) {
-            variantHtml = `
-                <select id="variant" class="input-style mb-4">
-                    <option value="">-- Choose Banner Style --</option>
-                    ${s.variants.map(v => `<option value="${v}">${v}</option>`).join('')}
-                </select>`;
-        }
-
-        appContent.innerHTML = `
-            <div class="glass-card p-6">
-                <h2 class="text-2xl christmas-font text-white mb-1">${s.name}</h2>
-                <p class="text-yellow-500 font-bold mb-6">${s.price}</p>
-                <form onsubmit="placeOrder(event, '${id}')" class="space-y-4">
-                    <input type="text" id="name" placeholder="Name or Telegram ID" required class="input-style">
-                    <input type="email" id="email" placeholder="Your Email Address" required class="input-style">
-                    ${variantHtml}
-                    <textarea id="req" placeholder="Tell us your project requirements..." required class="input-style" rows="3"></textarea>
-                    
-                    <div class="bg-white/5 p-4 rounded-xl border border-white/10 text-center">
-                        <p class="text-[10px] uppercase tracking-widest text-gray-400 mb-1 font-bold">Pay to UPI ID</p>
-                        <p class="text-lg font-bold text-white mb-2 tracking-wider">${UPI_ID}</p>
-                        <button type="button" onclick="copyUpi()" class="text-xs bg-red-600 px-4 py-1 rounded-full font-bold">Copy ID</button>
-                    </div>
-
-                    <input type="text" id="utr" placeholder="UTR / Transaction Ref No." required class="input-style">
-                    <button type="submit" class="w-full bg-red-600 py-4 rounded-xl font-bold shadow-lg shadow-red-900/40 text-lg">🎁 Place Order</button>
-                </form>
-            </div>
-        `;
-    }
-
-    async function placeOrder(e, sid) {
-        e.preventDefault();
-        const oid = "BV" + Math.floor(100000 + Math.random() * 900000);
-        const order = {
-            id: oid,
-            service: SERVICES[sid].name,
-            name: document.getElementById('name').value,
-            variant: document.getElementById('variant')?.value || 'N/A',
-            requirements: document.getElementById('req').value,
-            utr: document.getElementById('utr').value,
-            status: 'Pending',
-            date: new Date().toLocaleString()
-        };
-        
-        ORDERS.unshift(order);
-        localStorage.setItem('boostverse_orders', JSON.stringify(ORDERS));
-        
-        appContent.innerHTML = `
-            <div class="glass-card p-8 text-center">
-                <h2 class="text-3xl christmas-font text-green-400 mb-4">Order Successful!</h2>
-                <p class="text-gray-300 mb-2">Please Save Your Order ID:</p>
-                <div class="text-2xl font-bold text-white mb-6 p-4 bg-white/5 rounded-xl border-2 border-dashed border-red-500/50 tracking-widest">${oid}</div>
-                <button onclick="navigate('track-order')" class="w-full bg-green-600 py-3 rounded-xl font-bold mb-3">📌 Track Order</button>
-                <button onclick="navigate('home')" class="w-full glass-card py-3 rounded-xl font-bold">Back to Shop</button>
-            </div>
-        `;
-    }
-
-    function renderTrack() {
-        appContent.innerHTML = `
-            <div class="glass-card p-6">
-                <h2 class="text-2xl christmas-font text-white mb-4">Track Order</h2>
-                <input type="text" id="t-id" placeholder="Enter Order ID (e.g. BV123456)" class="input-style mb-4">
-                <button onclick="trackNow()" class="w-full bg-red-600 py-3 rounded-xl font-bold">Search Order</button>
-                <div id="t-res" class="mt-6"></div>
-            </div>
-        `;
-    }
-
-    function trackNow() {
-        const id = document.getElementById('t-id').value.trim();
-        const o = ORDERS.find(order => order.id === id);
-        const res = document.getElementById('t-res');
-        if (!o) { res.innerHTML = `<p class="text-red-400 text-center">Order not found. Please check your ID.</p>`; return; }
-        res.innerHTML = `
-            <div class="p-4 bg-white/5 rounded-xl border border-white/10 space-y-2">
-                <p class="text-sm"><span class="text-gray-400">Status:</span> <span class="text-green-400 font-bold">${o.status}</span></p>
-                <p class="text-sm"><span class="text-gray-400">Service:</span> ${o.service}</p>
-                <p class="text-xs text-gray-500 italic">Placed on: ${o.date}</p>
-            </div>
-        `;
-    }
-
-    function renderAdmin() {
-        const loggedIn = sessionStorage.getItem('isAdmin') === 'true';
-        if (!loggedIn) {
-            appContent.innerHTML = `
-                <div class="glass-card p-6">
-                    <h2 class="text-2xl christmas-font text-white mb-4">Admin Login</h2>
-                    <input type="password" id="pass" placeholder="Enter Admin Password" class="input-style mb-4">
-                    <button onclick="adminLogin()" class="w-full bg-red-600 py-3 rounded-xl font-bold">Login</button>
-                </div>
-            `;
-            return;
-        }
-
-        let html = `<div class="flex justify-between items-center mb-6"><h2 class="text-2xl christmas-font">Orders</h2><button onclick="adminLogout()" class="text-xs text-red-400">Logout</button></div><div class="space-y-4">`;
-        ORDERS.forEach(o => {
-            html += `
-                <div class="glass-card p-4 text-xs space-y-1">
-                    <p class="font-bold text-white text-sm">${o.id} - ${o.service}</p>
-                    <p class="text-gray-400">Client: ${o.name}</p>
-                    <p class="text-gray-400">UTR: <span class="text-yellow-500">${o.utr}</span></p>
-                    <div class="pt-2 flex justify-between items-center">
-                        <select onchange="updateStatus('${o.id}', this.value)" class="bg-gray-800 border-none rounded-md px-2 py-1">
-                            <option value="Pending" ${o.status==='Pending'?'selected':''}>Pending</option>
-                            <option value="In Progress" ${o.status==='In Progress'?'selected':''}>In Progress</option>
-                            <option value="Completed" ${o.status==='Completed'?'selected':''}>Completed</option>
-                        </select>
-                        <button onclick="deleteOrder('${o.id}')" class="text-red-500">Delete</button>
-                    </div>
-                </div>`;
-        });
-        appContent.innerHTML = html + (ORDERS.length === 0 ? '<p class="text-center text-gray-500">No orders yet.</p>' : '') + `</div>`;
-    }
-
-    function adminLogin() {
-        if (document.getElementById('pass').value === ADMIN_PASSWORD) {
-            sessionStorage.setItem('isAdmin', 'true'); render();
-        } else { showToast("Wrong Password!"); }
-    }
-    function adminLogout() { sessionStorage.removeItem('isAdmin'); render(); }
-    function copyUpi() { navigator.clipboard.writeText(UPI_ID); showToast("Copied UPI ID!"); }
-    function updateStatus(id, s) { 
-        const o = ORDERS.find(order => order.id === id); 
-        if(o) { o.status = s; localStorage.setItem('boostverse_orders', JSON.stringify(ORDERS)); showToast("Status Updated!"); }
-    }
-    function deleteOrder(id) {
-        if(confirm("Delete this order?")) {
-            ORDERS = ORDERS.filter(o => o.id !== id);
-            localStorage.setItem('boostverse_orders', JSON.stringify(ORDERS));
-            render();
-        }
-    }
-
-    // Snowflake Animation
-    function createSnow() {
-        const s = document.createElement('div');
-        s.className = 'snowflake';
-        s.innerHTML = '❄';
-        s.style.left = Math.random() * 100 + 'vw';
-        s.style.animationDuration = Math.random() * 3 + 2 + 's';
-        s.style.opacity = Math.random();
-        s.style.fontSize = Math.random() * 10 + 10 + 'px';
-        document.body.appendChild(s);
-        setTimeout(() => s.remove(), 5000);
-    }
-    setInterval(createSnow, 400);
-
-    window.onhashchange = render;
-    window.onload = render;
-</script>
-
+<!-- Load Configuration First -->
+<script src="config.js"></script>
+<!-- Load Application Logic -->
+<script src="app.js"></script>
 </body>
 </html>
-
