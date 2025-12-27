@@ -17,7 +17,6 @@
 <body class="antialiased">
 
 <div class="page-wrapper relative">
-    <!-- Header -->
     <header class="py-8 text-center">
         <h1 class="text-5xl christmas-font gradient-text mb-2 cursor-pointer select-none" onclick="navigate('home')">
             BoostVerseTG Shop
@@ -25,38 +24,31 @@
         <p class="text-gray-400 text-[10px] tracking-[0.3em] uppercase italic font-light">Telegram Powered Digital Shop</p>
     </header>
 
-    <!-- App Dynamic Content -->
     <main id="app-content" class="flex-grow pb-24"></main>
 
-    <!-- Global Navigation Footer -->
     <nav class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[94%] max-w-[440px] z-40">
         <div class="glass-card flex justify-around items-center p-3 shadow-2xl bg-black/60 border-white/20">
-            <button onclick="navigate('home')" class="flex flex-col items-center group">
-                <span class="text-xl mb-0.5">🏠</span>
-                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Home</span>
+            <button onclick="navigate('home')" class="flex flex-col items-center">
+                <span class="text-xl">🏠</span><span class="text-[9px] font-bold text-gray-400">Home</span>
             </button>
-            <button onclick="navigate('dashboard')" class="flex flex-col items-center group">
-                <span class="text-xl mb-0.5">📊</span>
-                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Dash</span>
+            <button onclick="navigate('dashboard')" class="flex flex-col items-center">
+                <span class="text-xl">📊</span><span class="text-[9px] font-bold text-gray-400">Dash</span>
             </button>
-            <button onclick="navigate('track-order')" class="flex flex-col items-center group">
-                <span class="text-xl mb-0.5">📌</span>
-                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Track</span>
+            <button onclick="navigate('track-order')" class="flex flex-col items-center">
+                <span class="text-xl">📌</span><span class="text-[9px] font-bold text-gray-400">Track</span>
             </button>
-            <button onclick="navigate('login')" class="flex flex-col items-center group">
-                <span class="text-xl mb-0.5">👤</span>
-                <span class="text-[9px] uppercase font-bold text-gray-400 group-hover:text-red-400">Account</span>
+            <button onclick="navigate('login')" class="flex flex-col items-center">
+                <span class="text-xl">👤</span><span class="text-[9px] font-bold text-gray-400">Account</span>
             </button>
         </div>
     </nav>
 
-    <!-- Toast Notification -->
     <div id="toast" class="fixed bottom-24 left-1/2 -translate-x-1/2 bg-red-600 text-white px-6 py-3 rounded-full shadow-2xl opacity-0 transition-all pointer-events-none z-50 transform scale-90"></div>
 </div>
 
-<!-- Load Configuration First -->
+<!-- Scripts must load in this order -->
 <script src="config.js"></script>
-<!-- Load Application Logic -->
 <script src="app.js"></script>
 </body>
 </html>
+
